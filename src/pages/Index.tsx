@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Calendar, CheckSquare, BookOpen, FileText, GraduationCap, 
@@ -42,9 +41,9 @@ const Index = () => {
   const [timerSeconds, setTimerSeconds] = useState(1500); // 25 minutes default
 
   // Form States
-  const [taskForm, setTaskForm] = useState({ title: '', description: '', dueDate: '', priority: 'medium', tags: [] });
+  const [taskForm, setTaskForm] = useState({ title: '', description: '', dueDate: '', priority: 'medium', tags: '' });
   const [habitForm, setHabitForm] = useState({ title: '', frequency: 'daily', reminderTime: '', streak: 0 });
-  const [journalForm, setJournalForm] = useState({ title: '', content: '', mood: 'neutral', tags: [] });
+  const [journalForm, setJournalForm] = useState({ title: '', content: '', mood: 'neutral', tags: '' });
   const [aiInput, setAiInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -209,14 +208,17 @@ const Index = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const data = JSON.parse(e.target.result);
-          setTodos(data.todos || []);
-          setHabits(data.habits || []);
-          setJournalEntries(data.journalEntries || []);
-          setNotepadContent(data.notepadContent || '');
-          setSettings(data.settings || settings);
-          setQuizHistory(data.quizHistory || []);
-          toast({ title: "Data Imported", description: "Your data has been restored successfully" });
+          const result = e.target?.result;
+          if (typeof result === 'string') {
+            const data = JSON.parse(result);
+            setTodos(data.todos || []);
+            setHabits(data.habits || []);
+            setJournalEntries(data.journalEntries || []);
+            setNotepadContent(data.notepadContent || '');
+            setSettings(data.settings || settings);
+            setQuizHistory(data.quizHistory || []);
+            toast({ title: "Data Imported", description: "Your data has been restored successfully" });
+          }
         } catch (error) {
           toast({ title: "Import Error", description: "Invalid file format", variant: "destructive" });
         }
@@ -241,7 +243,7 @@ const Index = () => {
     };
     
     setTodos([...todos, newTodo]);
-    setTaskForm({ title: '', description: '', dueDate: '', priority: 'medium', tags: [] });
+    setTaskForm({ title: '', description: '', dueDate: '', priority: 'medium', tags: '' });
     toast({ title: "Task Added", description: "New task created successfully" });
   };
 
@@ -314,7 +316,7 @@ const Index = () => {
     };
     
     setJournalEntries([newEntry, ...journalEntries]);
-    setJournalForm({ title: '', content: '', mood: 'neutral', tags: [] });
+    setJournalForm({ title: '', content: '', mood: 'neutral', tags: '' });
     toast({ title: "Journal Entry Added", description: "Your thoughts have been saved" });
   };
 
@@ -394,7 +396,7 @@ const Index = () => {
         totalQuestions: updatedQuiz.questions.length,
         percentage: Math.round((score / updatedQuiz.questions.length) * 100),
         completedAt: new Date().toISOString(),
-        timeSpent: Math.round((new Date() - updatedQuiz.startTime) / 1000 / 60) // minutes
+        timeSpent: Math.round((new Date().getTime() - updatedQuiz.startTime.getTime()) / 1000 / 60) // minutes
       };
       
       setQuizHistory([quizResult, ...quizHistory]);
@@ -459,26 +461,31 @@ const Index = () => {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 ${darkMode ? 'dark' : ''}`}>
       <div className="bg-background text-foreground">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-border z-50">
-          <div className="flex items-center justify-between h-full px-4">
+        <header className="fixed top-0 left-0 right-0 h-16 bg-white/90 backdrop-blur-md border-b border-slate-200/60 z-50 shadow-sm">
+          <div className="flex items-center justify-between h-full px-6">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden"
+                className="lg:hidden hover:bg-slate-100/50 transition-colors"
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              <h1 
-                className="text-xl font-bold text-primary cursor-pointer"
+              <div 
+                className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => setCurrentSection('dashboard')}
               >
-                7K Life
-              </h1>
+                <div className="w-8 h-8 bg-gradient-to-br from-slate-900 to-slate-700 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">7K</span>
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
+                  7K Life
+                </h1>
+              </div>
             </div>
             
             <div className="flex items-center gap-2">
@@ -486,6 +493,7 @@ const Index = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setDarkMode(!darkMode)}
+                className="hover:bg-slate-100/50 transition-colors"
               >
                 {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
@@ -493,6 +501,7 @@ const Index = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setAiChatOpen(true)}
+                className="hover:bg-slate-100/50 transition-colors"
               >
                 <Bot className="h-5 w-5" />
               </Button>
@@ -501,10 +510,10 @@ const Index = () => {
         </header>
 
         {/* Sidebar */}
-        <aside className={`fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-border transition-transform duration-300 z-40 ${
+        <aside className={`fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-md border-r border-slate-200/60 transition-transform duration-300 z-40 shadow-sm ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}>
-          <nav className="p-4">
+          <nav className="p-6">
             <ul className="space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -512,13 +521,17 @@ const Index = () => {
                   <li key={item.id}>
                     <Button
                       variant={currentSection === item.id ? "default" : "ghost"}
-                      className="w-full justify-start"
+                      className={`w-full justify-start transition-all duration-200 ${
+                        currentSection === item.id 
+                          ? "bg-slate-900 text-white shadow-lg hover:bg-slate-800" 
+                          : "hover:bg-slate-100/70 text-slate-700"
+                      }`}
                       onClick={() => {
                         setCurrentSection(item.id);
                         setSidebarOpen(false);
                       }}
                     >
-                      <Icon className="h-4 w-4 mr-2" />
+                      <Icon className="h-4 w-4 mr-3" />
                       {item.label}
                     </Button>
                   </li>
@@ -529,14 +542,17 @@ const Index = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="lg:ml-64 pt-16 min-h-screen bg-background">
-          <div className="p-6">
+        <main className="lg:ml-64 pt-16 min-h-screen">
+          <div className="p-8 max-w-7xl mx-auto">
             {/* Dashboard Section */}
             {currentSection === 'dashboard' && (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-3xl font-bold">Dashboard</h2>
-                  <div className="text-sm text-muted-foreground">
+                  <div>
+                    <h2 className="text-4xl font-bold text-slate-900 mb-2">Dashboard</h2>
+                    <p className="text-slate-600">Welcome back! Here's your progress overview.</p>
+                  </div>
+                  <div className="text-sm text-slate-500 bg-white/50 px-4 py-2 rounded-lg border border-slate-200/50">
                     {new Date().toLocaleDateString('en-US', { 
                       weekday: 'long', 
                       year: 'numeric', 
@@ -548,55 +564,63 @@ const Index = () => {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
-                      <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Card className="border-0 shadow-lg shadow-slate-200/50 bg-white/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                      <CardTitle className="text-sm font-medium text-slate-600">Pending Tasks</CardTitle>
+                      <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <Clock className="h-4 w-4 text-orange-600" />
+                      </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-orange-600">{stats.pendingTasks}</div>
-                      <p className="text-xs text-muted-foreground">
+                      <div className="text-3xl font-bold text-orange-600 mb-1">{stats.pendingTasks}</div>
+                      <p className="text-xs text-slate-500">
                         {stats.completedTasks} completed today
                       </p>
                     </CardContent>
                   </Card>
 
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Today's Habits</CardTitle>
-                      <Target className="h-4 w-4 text-muted-foreground" />
+                  <Card className="border-0 shadow-lg shadow-slate-200/50 bg-white/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                      <CardTitle className="text-sm font-medium text-slate-600">Today's Habits</CardTitle>
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <Target className="h-4 w-4 text-green-600" />
+                      </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-green-600">
+                      <div className="text-3xl font-bold text-green-600 mb-1">
                         {stats.todayHabits}/{stats.activeHabits}
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-slate-500">
                         {Math.round((stats.todayHabits / (stats.activeHabits || 1)) * 100)}% completion rate
                       </p>
                     </CardContent>
                   </Card>
 
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Journal Entries</CardTitle>
-                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                  <Card className="border-0 shadow-lg shadow-slate-200/50 bg-white/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                      <CardTitle className="text-sm font-medium text-slate-600">Journal Entries</CardTitle>
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <BookOpen className="h-4 w-4 text-blue-600" />
+                      </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-blue-600">{stats.journalCount}</div>
-                      <p className="text-xs text-muted-foreground">
+                      <div className="text-3xl font-bold text-blue-600 mb-1">{stats.journalCount}</div>
+                      <p className="text-xs text-slate-500">
                         Total entries written
                       </p>
                     </CardContent>
                   </Card>
 
-                  <Card className="hover:shadow-md transition-shadow">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Quiz Average</CardTitle>
-                      <Award className="h-4 w-4 text-muted-foreground" />
+                  <Card className="border-0 shadow-lg shadow-slate-200/50 bg-white/70 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                      <CardTitle className="text-sm font-medium text-slate-600">Quiz Average</CardTitle>
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <Award className="h-4 w-4 text-purple-600" />
+                      </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-purple-600">{stats.averageQuizScore}%</div>
-                      <p className="text-xs text-muted-foreground">
+                      <div className="text-3xl font-bold text-purple-600 mb-1">{stats.averageQuizScore}%</div>
+                      <p className="text-xs text-slate-500">
                         {quizHistory.length} quizzes taken
                       </p>
                     </CardContent>
@@ -604,22 +628,24 @@ const Index = () => {
                 </div>
 
                 {/* Pomodoro Timer */}
-                <Card>
+                <Card className="border-0 shadow-lg shadow-slate-200/50 bg-white/70 backdrop-blur-sm">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Clock className="h-5 w-5" />
+                    <CardTitle className="flex items-center gap-3 text-slate-800">
+                      <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                        <Clock className="h-5 w-5 text-slate-600" />
+                      </div>
                       Pomodoro Timer
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-center justify-center space-x-4">
-                      <div className="text-4xl font-mono font-bold">
+                    <div className="flex items-center justify-center space-x-6">
+                      <div className="text-5xl font-mono font-bold text-slate-800">
                         {formatTime(timerSeconds)}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <Button
                           onClick={() => setTimerRunning(!timerRunning)}
-                          variant={timerRunning ? "destructive" : "default"}
+                          className={`shadow-lg ${timerRunning ? "bg-red-500 hover:bg-red-600" : "bg-slate-900 hover:bg-slate-800"}`}
                         >
                           {timerRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                         </Button>
@@ -629,19 +655,20 @@ const Index = () => {
                             setTimerSeconds(1500);
                           }}
                           variant="outline"
+                          className="shadow-lg border-slate-200 hover:bg-slate-50"
                         >
                           <RotateCcw className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
-                    <div className="mt-4 flex gap-2 justify-center">
-                      <Button size="sm" onClick={() => setTimerSeconds(1500)} variant="outline">
+                    <div className="mt-6 flex gap-3 justify-center">
+                      <Button size="sm" onClick={() => setTimerSeconds(1500)} variant="outline" className="shadow-sm">
                         25m
                       </Button>
-                      <Button size="sm" onClick={() => setTimerSeconds(300)} variant="outline">
+                      <Button size="sm" onClick={() => setTimerSeconds(300)} variant="outline" className="shadow-sm">
                         5m
                       </Button>
-                      <Button size="sm" onClick={() => setTimerSeconds(900)} variant="outline">
+                      <Button size="sm" onClick={() => setTimerSeconds(900)} variant="outline" className="shadow-sm">
                         15m
                       </Button>
                     </div>
@@ -649,53 +676,53 @@ const Index = () => {
                 </Card>
 
                 {/* Recent Activity */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <Card className="border-0 shadow-lg shadow-slate-200/50 bg-white/70 backdrop-blur-sm">
                     <CardHeader>
-                      <CardTitle>Recent Tasks</CardTitle>
+                      <CardTitle className="text-slate-800">Recent Tasks</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {todos.slice(0, 5).map((todo) => (
-                          <div key={todo.id} className="flex items-center gap-2 p-2 rounded hover:bg-muted">
+                          <div key={todo.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50/50 transition-colors">
                             <input
                               type="checkbox"
                               checked={todo.completed}
                               onChange={() => toggleTodo(todo.id)}
-                              className="rounded"
+                              className="rounded w-4 h-4"
                             />
-                            <span className={todo.completed ? 'line-through text-muted-foreground' : ''}>
+                            <span className={`flex-1 ${todo.completed ? 'line-through text-slate-400' : 'text-slate-700'}`}>
                               {todo.title}
                             </span>
-                            <Badge variant={todo.priority === 'high' ? 'destructive' : todo.priority === 'medium' ? 'default' : 'secondary'}>
+                            <Badge variant={todo.priority === 'high' ? 'destructive' : todo.priority === 'medium' ? 'default' : 'secondary'} className="text-xs">
                               {todo.priority}
                             </Badge>
                           </div>
                         ))}
                         {todos.length === 0 && (
-                          <p className="text-muted-foreground text-center py-4">No tasks yet. Create your first task!</p>
+                          <p className="text-slate-400 text-center py-8">No tasks yet. Create your first task!</p>
                         )}
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="border-0 shadow-lg shadow-slate-200/50 bg-white/70 backdrop-blur-sm">
                     <CardHeader>
-                      <CardTitle>Habit Progress</CardTitle>
+                      <CardTitle className="text-slate-800">Habit Progress</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
                         {habits.slice(0, 5).map((habit) => (
                           <div key={habit.id} className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="font-medium">{habit.title}</span>
-                              <Badge variant="outline">{habit.streak} days</Badge>
+                              <span className="font-medium text-slate-700">{habit.title}</span>
+                              <Badge variant="outline" className="text-xs border-slate-200">{habit.streak} days</Badge>
                             </div>
-                            <Progress value={habit.streak * 10} className="h-2" />
+                            <Progress value={Math.min(habit.streak * 10, 100)} className="h-2 bg-slate-100" />
                           </div>
                         ))}
                         {habits.length === 0 && (
-                          <p className="text-muted-foreground text-center py-4">No habits tracked yet. Start building good habits!</p>
+                          <p className="text-slate-400 text-center py-8">No habits tracked yet. Start building good habits!</p>
                         )}
                       </div>
                     </CardContent>
@@ -1479,31 +1506,33 @@ const Index = () => {
         {aiChatOpen && (
           <div className="fixed inset-0 z-50 flex">
             <div 
-              className="flex-1 bg-black/50" 
+              className="flex-1 bg-black/20 backdrop-blur-sm" 
               onClick={() => setAiChatOpen(false)}
             />
-            <div className="w-full max-w-md bg-white shadow-xl flex flex-col">
-              <div className="flex items-center justify-between p-4 border-b">
-                <h3 className="font-semibold">AI Assistant</h3>
-                <Button variant="ghost" size="sm" onClick={() => setAiChatOpen(false)}>
+            <div className="w-full max-w-md bg-white/95 backdrop-blur-md shadow-2xl flex flex-col border-l border-slate-200/50">
+              <div className="flex items-center justify-between p-4 border-b border-slate-200/50 bg-white/50">
+                <h3 className="font-semibold text-slate-800">AI Assistant</h3>
+                <Button variant="ghost" size="sm" onClick={() => setAiChatOpen(false)} className="hover:bg-slate-100/50">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
               
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {aiMessages.length === 0 && (
-                  <div className="text-center text-muted-foreground py-8">
-                    <Bot className="h-12 w-12 mx-auto mb-4 text-primary" />
-                    <p>Hi! I'm your AI assistant. Ask me anything about your studies, productivity, or general questions!</p>
+                  <div className="text-center text-slate-500 py-8">
+                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Bot className="h-8 w-8 text-slate-600" />
+                    </div>
+                    <p className="text-sm leading-relaxed">Hi! I'm your AI assistant. Ask me anything about your studies, productivity, or general questions!</p>
                   </div>
                 )}
                 
                 {aiMessages.map((message, index) => (
                   <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] p-3 rounded-lg ${
+                    <div className={`max-w-[80%] p-3 rounded-lg shadow-sm ${
                       message.sender === 'user' 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted'
+                        ? 'bg-slate-900 text-white' 
+                        : 'bg-white border border-slate-200'
                     }`}>
                       <p className="text-sm">{message.text}</p>
                       <p className="text-xs opacity-70 mt-1">
@@ -1515,26 +1544,27 @@ const Index = () => {
                 
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-muted p-3 rounded-lg">
+                    <div className="bg-white border border-slate-200 p-3 rounded-lg shadow-sm">
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
               
-              <div className="p-4 border-t">
+              <div className="p-4 border-t border-slate-200/50 bg-white/50">
                 <div className="flex gap-2">
                   <Input
                     placeholder="Ask me anything..."
                     value={aiInput}
                     onChange={(e) => setAiInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && sendAiMessage()}
+                    className="border-slate-200"
                   />
-                  <Button onClick={sendAiMessage} disabled={!aiInput.trim() || isLoading}>
+                  <Button onClick={sendAiMessage} disabled={!aiInput.trim() || isLoading} className="shadow-sm">
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
@@ -1546,7 +1576,7 @@ const Index = () => {
         {/* Sidebar Overlay */}
         {sidebarOpen && (
           <div 
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
