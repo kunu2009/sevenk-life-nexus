@@ -1467,7 +1467,7 @@ const Index = () => {
                       >
                         Clear All Data
                       </Button>
-                    </CardData>
+                    </CardContent>
                   </Card>
                 </div>
               </div>
