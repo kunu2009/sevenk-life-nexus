@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, CheckCircle, List, Target, Calendar, ArrowRight, Clock, Menu } from "lucide-react";
+import { Plus, CheckCircle, List, Target, Calendar, ArrowRight, Clock, Sparkles, Zap, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
@@ -59,159 +59,173 @@ const Dashboard = () => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-slate-950">
+      <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
         <AppSidebar />
         
         <SidebarInset className="flex-1">
-          <div className="min-h-screen bg-slate-950 text-white">
+          <div className="min-h-screen bg-transparent">
+            {/* Decorative Doodles */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-10 left-20 w-4 h-4 bg-yellow-300 rounded-full opacity-60 animate-pulse"></div>
+              <div className="absolute top-32 right-40 w-6 h-6 bg-pink-300 rounded-full opacity-40"></div>
+              <div className="absolute bottom-40 left-10 w-3 h-3 bg-blue-300 rounded-full opacity-50"></div>
+              <div className="absolute top-1/2 right-20 w-5 h-5 bg-green-300 rounded-full opacity-30"></div>
+              
+              {/* Squiggly lines */}
+              <svg className="absolute top-20 right-60 w-20 h-20 text-purple-200 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+              </svg>
+              
+              <svg className="absolute bottom-20 left-40 w-16 h-16 text-orange-200 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+
             {/* Header Section */}
-            <div className="bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 px-6 pt-8 pb-6">
+            <div className="relative px-8 pt-8 pb-6">
               <div className="max-w-6xl mx-auto">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-4">
-                    <SidebarTrigger className="text-slate-400 hover:text-white transition-colors">
-                      <Menu className="h-5 w-5" />
-                    </SidebarTrigger>
                     <div>
-                      <h1 className="text-3xl font-bold text-white mb-2">
-                        Good morning, Alex
+                      <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                        Good morning, Alex! ✨
                       </h1>
-                      <p className="text-slate-400">Let's make today productive</p>
+                      <p className="text-slate-600 text-lg">Let's make today absolutely amazing</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
                       A
                     </div>
                   </div>
                 </div>
 
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700/50">
-                    <div className="text-2xl font-bold text-white">{completedTodos}</div>
-                    <div className="text-slate-400 text-sm">Tasks Done</div>
+                {/* Fun Stats with Doodle Style */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-slate-200/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
+                    <div className="absolute top-2 right-2 text-yellow-400"><Sparkles className="h-4 w-4" /></div>
+                    <div className="text-3xl font-bold text-slate-800 mb-1">{completedTodos}</div>
+                    <div className="text-slate-500 text-sm font-medium">Tasks Crushed</div>
                   </div>
-                  <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700/50">
-                    <div className="text-2xl font-bold text-green-400">{completedHabits}</div>
-                    <div className="text-slate-400 text-sm">Habits Today</div>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-slate-200/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
+                    <div className="absolute top-2 right-2 text-green-400"><Zap className="h-4 w-4" /></div>
+                    <div className="text-3xl font-bold text-green-600 mb-1">{completedHabits}</div>
+                    <div className="text-slate-500 text-sm font-medium">Habits Nailed</div>
                   </div>
-                  <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700/50">
-                    <div className="text-2xl font-bold text-blue-400">85%</div>
-                    <div className="text-slate-400 text-sm">Completion</div>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-slate-200/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
+                    <div className="absolute top-2 right-2 text-blue-400"><Heart className="h-4 w-4" /></div>
+                    <div className="text-3xl font-bold text-blue-600 mb-1">85%</div>
+                    <div className="text-slate-500 text-sm font-medium">Awesome Rate</div>
                   </div>
-                  <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-4 border border-slate-700/50">
-                    <div className="text-2xl font-bold text-purple-400">12</div>
-                    <div className="text-slate-400 text-sm">Day Streak</div>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-slate-200/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
+                    <div className="absolute top-2 right-2 text-purple-400"><Clock className="h-4 w-4" /></div>
+                    <div className="text-3xl font-bold text-purple-600 mb-1">12</div>
+                    <div className="text-slate-500 text-sm font-medium">Day Streak</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Main Content */}
-            <div className="px-6 py-8">
+            <div className="px-8 pb-8">
               <div className="max-w-6xl mx-auto space-y-8">
-                {/* Navigation Cards */}
+                {/* Navigation Cards with Playful Style */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <Link to="/todos" className="group">
-                    <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-blue-500/50 transition-all duration-300 hover:scale-[1.02]">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                          <List className="h-6 w-6 text-blue-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-semibold">Todo Lists</h3>
-                          <p className="text-slate-400 text-sm">{totalTodos} tasks</p>
-                        </div>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:rotate-1 relative overflow-hidden">
+                      <div className="absolute top-4 right-4 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <List className="h-4 w-4 text-blue-600" />
                       </div>
-                      <div className="flex items-center text-blue-400 text-sm group-hover:text-blue-300">
-                        <span>Manage tasks</span>
+                      <div className="mb-4">
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">Todo Magic ✨</h3>
+                        <p className="text-slate-600">{totalTodos} tasks waiting for you</p>
+                      </div>
+                      <div className="flex items-center text-blue-600 font-medium group-hover:text-blue-700">
+                        <span>Let's get stuff done!</span>
                         <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
                   </Link>
 
                   <Link to="/habits" className="group">
-                    <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-green-500/50 transition-all duration-300 hover:scale-[1.02]">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                          <Target className="h-6 w-6 text-green-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-semibold">Habits</h3>
-                          <p className="text-slate-400 text-sm">{totalHabits} habits</p>
-                        </div>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:-rotate-1 relative overflow-hidden">
+                      <div className="absolute top-4 right-4 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <Target className="h-4 w-4 text-green-600" />
                       </div>
-                      <div className="flex items-center text-green-400 text-sm group-hover:text-green-300">
-                        <span>Track goals</span>
+                      <div className="mb-4">
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">Habit Garden 🌱</h3>
+                        <p className="text-slate-600">{totalHabits} habits growing strong</p>
+                      </div>
+                      <div className="flex items-center text-green-600 font-medium group-hover:text-green-700">
+                        <span>Build your future!</span>
                         <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
                   </Link>
 
                   <Link to="/calendar" className="group">
-                    <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02]">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                          <Calendar className="h-6 w-6 text-purple-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-white font-semibold">Calendar</h3>
-                          <p className="text-slate-400 text-sm">Schedule events</p>
-                        </div>
+                    <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:rotate-1 relative overflow-hidden">
+                      <div className="absolute top-4 right-4 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-purple-600" />
                       </div>
-                      <div className="flex items-center text-purple-400 text-sm group-hover:text-purple-300">
-                        <span>View schedule</span>
+                      <div className="mb-4">
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">Time Planner 📅</h3>
+                        <p className="text-slate-600">Your schedule awaits</p>
+                      </div>
+                      <div className="flex items-center text-purple-600 font-medium group-hover:text-purple-700">
+                        <span>Plan your day!</span>
                         <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
                   </Link>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Quick Actions with Notion Style */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Quick Add Todo */}
-                  <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                        <Plus className="h-5 w-5 text-blue-400" />
+                  <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 relative overflow-hidden">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Plus className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-white font-semibold">Quick Add</h3>
-                        <p className="text-slate-400 text-sm">Add a new task</p>
+                        <h3 className="text-xl font-bold text-slate-800">Quick Add ⚡</h3>
+                        <p className="text-slate-600">Capture that brilliant idea</p>
                       </div>
                     </div>
                     
                     <form onSubmit={handleAddTodo} className="space-y-4">
                       <div className="flex gap-3">
                         <Input
-                          placeholder="What needs to be done?"
+                          placeholder="What's on your mind? 🤔"
                           value={newTodo}
                           onChange={(e) => setNewTodo(e.target.value)}
-                          className="flex-1 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 rounded-xl focus:border-blue-500"
+                          className="flex-1 bg-white/80 border-slate-200 text-slate-800 placeholder:text-slate-400 rounded-2xl h-12 focus:border-blue-400 focus:ring-blue-400/20"
                         />
-                        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 rounded-xl px-6">
+                        <Button type="submit" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-2xl px-8 h-12 shadow-lg">
                           Add
                         </Button>
                       </div>
                     </form>
                     
-                    <div className="mt-6 space-y-3">
+                    <div className="mt-8 space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-300 font-medium">Recent Tasks</span>
-                        <Link to="/todos" className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1">
-                          View all <ArrowRight className="h-3 w-3" />
+                        <span className="text-slate-700 font-semibold">Recent Wins 🎉</span>
+                        <Link to="/todos" className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+                          See all <ArrowRight className="h-3 w-3" />
                         </Link>
                       </div>
                       {todos.slice(0, 3).map((todo) => (
-                        <div key={todo.id} className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-xl">
-                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            todo.completed ? 'bg-green-500 border-green-500' : 'border-slate-500'
+                        <div key={todo.id} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-2xl border border-slate-100">
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                            todo.completed 
+                              ? 'bg-green-500 border-green-500 shadow-lg' 
+                              : 'border-slate-300 hover:border-green-400'
                           }`}>
-                            {todo.completed && <CheckCircle className="h-3 w-3 text-white" />}
+                            {todo.completed && <CheckCircle className="h-4 w-4 text-white" />}
                           </div>
-                          <span className={`text-sm flex-1 ${
-                            todo.completed ? 'line-through text-slate-500' : 'text-slate-300'
+                          <span className={`text-sm flex-1 font-medium ${
+                            todo.completed ? 'line-through text-slate-500' : 'text-slate-700'
                           }`}>
                             {todo.text}
                           </span>
@@ -221,45 +235,45 @@ const Dashboard = () => {
                   </div>
 
                   {/* Today's Habits */}
-                  <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
-                        <Target className="h-5 w-5 text-green-400" />
+                  <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 relative overflow-hidden">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Target className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-white font-semibold">Today's Habits</h3>
-                        <p className="text-slate-400 text-sm">Build consistency</p>
+                        <h3 className="text-xl font-bold text-slate-800">Daily Rituals 🌟</h3>
+                        <p className="text-slate-600">Small steps, big impact</p>
                       </div>
                     </div>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {habits.map((habit) => (
                         <div
                           key={habit.id}
-                          className="flex items-center justify-between p-3 bg-slate-700/30 rounded-xl hover:bg-slate-700/50 transition-colors"
+                          className="flex items-center justify-between p-4 bg-slate-50/80 rounded-2xl border border-slate-100 hover:bg-slate-100/80 transition-all"
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-4">
                             <Button
                               size="sm"
                               variant={habit.completed ? "default" : "outline"}
                               onClick={() => toggleHabit(habit.id)}
-                              className={`w-8 h-8 rounded-full p-0 ${
+                              className={`w-10 h-10 rounded-full p-0 transition-all ${
                                 habit.completed 
-                                  ? "bg-green-600 hover:bg-green-700 text-white" 
-                                  : "bg-transparent border-slate-500 text-slate-400 hover:border-green-500 hover:text-green-400"
+                                  ? "bg-green-500 hover:bg-green-600 text-white shadow-lg" 
+                                  : "bg-white border-slate-200 text-slate-400 hover:border-green-400 hover:text-green-500"
                               }`}
                             >
-                              <CheckCircle className="h-4 w-4" />
+                              <CheckCircle className="h-5 w-5" />
                             </Button>
                             <div>
-                              <span className={`text-sm font-medium ${
-                                habit.completed ? 'text-green-400' : 'text-slate-300'
+                              <span className={`font-medium ${
+                                habit.completed ? 'text-green-600' : 'text-slate-700'
                               }`}>
                                 {habit.name}
                               </span>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="secondary" className="text-xs bg-slate-600/50 text-slate-300 border-0">
-                                  {habit.streak} days
+                                <Badge variant="secondary" className="text-xs bg-slate-200 text-slate-600 border-0 rounded-full">
+                                  🔥 {habit.streak} days
                                 </Badge>
                               </div>
                             </div>
@@ -268,8 +282,8 @@ const Dashboard = () => {
                       ))}
                     </div>
                     
-                    <Link to="/habits" className="block mt-4">
-                      <Button variant="outline" className="w-full rounded-xl border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
+                    <Link to="/habits" className="block mt-6">
+                      <Button variant="outline" className="w-full rounded-2xl border-slate-200 text-slate-700 hover:bg-slate-50 font-medium h-12">
                         View All Habits <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
                     </Link>

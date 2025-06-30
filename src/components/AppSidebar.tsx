@@ -10,7 +10,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  useSidebar,
 } from "@/components/ui/sidebar";
 
 const navigationItems = [
@@ -21,18 +20,15 @@ const navigationItems = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  
-  const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className="border-r border-slate-700/50 bg-slate-900/50 backdrop-blur-sm">
-      <SidebarContent className="py-4">
+    <Sidebar className="w-16 border-r border-slate-800/30 bg-slate-900/80 backdrop-blur-md">
+      <SidebarContent className="py-6">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
+            <SidebarMenu className="space-y-3">
               {navigationItems.map((item) => {
                 const isActive = currentPath === item.url;
                 return (
@@ -40,21 +36,18 @@ export function AppSidebar() {
                     <SidebarMenuButton 
                       asChild 
                       className={`
-                        relative h-12 px-3 rounded-xl mx-2 transition-all duration-200
+                        relative w-12 h-12 rounded-2xl mx-2 transition-all duration-300 group
                         ${isActive 
-                          ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' 
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                          ? 'bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-white shadow-lg shadow-purple-500/20' 
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800/60 hover:scale-105'
                         }
                       `}
-                      tooltip={isCollapsed ? item.title : undefined}
+                      tooltip={item.title}
                     >
-                      <NavLink to={item.url} className="flex items-center gap-3">
-                        <item.icon className="h-5 w-5 flex-shrink-0" />
-                        {!isCollapsed && (
-                          <span className="font-medium">{item.title}</span>
-                        )}
+                      <NavLink to={item.url} className="flex items-center justify-center w-full h-full">
+                        <item.icon className="h-5 w-5" />
                         {isActive && (
-                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-blue-500 rounded-full" />
+                          <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full" />
                         )}
                       </NavLink>
                     </SidebarMenuButton>
