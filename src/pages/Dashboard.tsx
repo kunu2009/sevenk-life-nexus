@@ -1,292 +1,270 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, CheckCircle, List, Target, Calendar, ArrowRight, Clock, Sparkles, Zap, Heart } from "lucide-react";
+import { CheckCircle, List, Target, Calendar as CalendarIcon, Moon, Sun, Plus, Trash2, User, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { Calendar } from "@/components/ui/calendar";
+import { getTodos, saveTodos, getHabits, saveHabits, getRandomQuote, Todo, Habit } from "@/lib/utils";
+
+const DARK_KEY = 'sevenk_dark_mode';
+const USER_KEY = 'sevenk_user_name';
 
 const Dashboard = () => {
   const [newTodo, setNewTodo] = useState('');
-  const [todos, setTodos] = useState([
-    { id: 1, text: "Complete project proposal", completed: false },
-    { id: 2, text: "Review quarterly reports", completed: true },
-    { id: 3, text: "Schedule team meeting", completed: false },
-  ]);
-  const [habits, setHabits] = useState([
-    { id: 1, name: "Morning Exercise", completed: false, streak: 5 },
-    { id: 2, name: "Read 30 minutes", completed: true, streak: 12 },
-    { id: 3, name: "Drink 8 glasses of water", completed: false, streak: 3 },
-    { id: 4, name: "Meditate 10 minutes", completed: false, streak: 8 },
-  ]);
-  
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [newHabit, setNewHabit] = useState('');
+  const [quote, setQuote] = useState('');
+  const [darkMode, setDarkMode] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState('');
   const { toast } = useToast();
 
+  // Load from localStorage on mount
+  useEffect(() => {
+    setTodos(getTodos());
+    setHabits(getHabits());
+    setQuote(getRandomQuote());
+    setDarkMode(localStorage.getItem(DARK_KEY) === 'true');
+    const storedName = localStorage.getItem(USER_KEY) || '';
+    setUserName(storedName);
+    setNameInput(storedName);
+  }, []);
+
+  // Save todos/habits to localStorage on change
+  useEffect(() => { saveTodos(todos); }, [todos]);
+  useEffect(() => { saveHabits(habits); }, [habits]);
+  useEffect(() => { localStorage.setItem(DARK_KEY, darkMode ? 'true' : 'false'); }, [darkMode]);
+  useEffect(() => { localStorage.setItem(USER_KEY, userName); }, [userName]);
+
+  // Dark mode class on html
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  // Todo Handlers
   const handleAddTodo = (e: React.FormEvent) => {
     e.preventDefault();
     if (newTodo.trim()) {
-      const newId = Math.max(...todos.map(t => t.id), 0) + 1;
-      setTodos([...todos, { id: newId, text: newTodo.trim(), completed: false }]);
+      const newId = Math.max(0, ...todos.map(t => t.id)) + 1;
+      setTodos([{ id: newId, text: newTodo.trim(), completed: false }, ...todos]);
       setNewTodo('');
-      toast({
-        title: "Todo Added",
-        description: "Your new todo has been added successfully!",
-      });
+      toast({ title: "Todo Added", description: "Your new todo has been added." });
     }
   };
-
-  const toggleHabit = (habitId: number) => {
-    setHabits(habits.map(habit => 
-      habit.id === habitId 
-        ? { ...habit, completed: !habit.completed, streak: habit.completed ? habit.streak : habit.streak + 1 }
-        : habit
-    ));
-    const habit = habits.find(h => h.id === habitId);
-    toast({
-      title: habit?.completed ? "Habit Unmarked" : "Habit Completed",
-      description: habit?.completed ? "Keep up the consistency!" : "Great job maintaining your streak!",
-    });
+  const handleToggleTodo = (id: number) => {
+    setTodos(todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo));
+  };
+  const handleDeleteTodo = (id: number) => {
+    setTodos(todos.filter(todo => todo.id !== id));
   };
 
+  // Habit Handlers
+  const handleAddHabit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newHabit.trim()) {
+      const newId = Math.max(0, ...habits.map(h => h.id)) + 1;
+      setHabits([{ id: newId, name: newHabit.trim(), completed: false, streak: 0 }, ...habits]);
+      setNewHabit('');
+      toast({ title: "Habit Added", description: "Your new habit has been added." });
+    }
+  };
+  const handleToggleHabit = (id: number) => {
+    setHabits(habits.map(habit =>
+      habit.id === id
+        ? { ...habit, completed: !habit.completed, streak: !habit.completed ? habit.streak + 1 : habit.streak }
+        : habit
+    ));
+  };
+  const handleDeleteHabit = (id: number) => {
+    setHabits(habits.filter(habit => habit.id !== id));
+  };
+
+  // Stats
   const completedTodos = todos.filter(todo => todo.completed).length;
   const totalTodos = todos.length;
   const completedHabits = habits.filter(habit => habit.completed).length;
   const totalHabits = habits.length;
+  const todoProgress = totalTodos ? Math.round((completedTodos / totalTodos) * 100) : 0;
+  const habitProgress = totalHabits ? Math.round((completedHabits / totalHabits) * 100) : 0;
+
+  // Quote
+  const handleNewQuote = () => setQuote(getRandomQuote());
+
+  // Name editing
+  const handleNameSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setUserName(nameInput.trim());
+    setEditingName(false);
+  };
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/20">
+      <div className={`flex min-h-screen w-full bg-slate-50 dark:bg-slate-900 transition-colors duration-300`}>
         <AppSidebar />
-        
         <SidebarInset className="flex-1">
           <div className="min-h-screen bg-transparent">
-            {/* Decorative Doodles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-10 left-20 w-4 h-4 bg-yellow-300 rounded-full opacity-60 animate-pulse"></div>
-              <div className="absolute top-32 right-40 w-6 h-6 bg-pink-300 rounded-full opacity-40"></div>
-              <div className="absolute bottom-40 left-10 w-3 h-3 bg-blue-300 rounded-full opacity-50"></div>
-              <div className="absolute top-1/2 right-20 w-5 h-5 bg-green-300 rounded-full opacity-30"></div>
-              
-              {/* Squiggly lines */}
-              <svg className="absolute top-20 right-60 w-20 h-20 text-purple-200 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-              </svg>
-              
-              <svg className="absolute bottom-20 left-40 w-16 h-16 text-orange-200 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </div>
-
-            {/* Header Section */}
-            <div className="relative px-8 pt-8 pb-6">
-              <div className="max-w-6xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                        Good morning, Alex! ✨
-                      </h1>
-                      <p className="text-slate-600 text-lg">Let's make today absolutely amazing</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                      A
-                    </div>
-                  </div>
+            {/* Header */}
+            <div className="relative px-8 pt-8 pb-6 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-colors duration-300">
+              <div className="max-w-6xl mx-auto flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">7K Life</span>
+                  <span className="text-xs text-slate-400 font-semibold ml-2">Productivity Suite</span>
                 </div>
-
-                {/* Fun Stats with Doodle Style */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-slate-200/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 text-yellow-400"><Sparkles className="h-4 w-4" /></div>
-                    <div className="text-3xl font-bold text-slate-800 mb-1">{completedTodos}</div>
-                    <div className="text-slate-500 text-sm font-medium">Tasks Crushed</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-slate-200/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 text-green-400"><Zap className="h-4 w-4" /></div>
-                    <div className="text-3xl font-bold text-green-600 mb-1">{completedHabits}</div>
-                    <div className="text-slate-500 text-sm font-medium">Habits Nailed</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-slate-200/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 text-blue-400"><Heart className="h-4 w-4" /></div>
-                    <div className="text-3xl font-bold text-blue-600 mb-1">85%</div>
-                    <div className="text-slate-500 text-sm font-medium">Awesome Rate</div>
-                  </div>
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-slate-200/50 hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 text-purple-400"><Clock className="h-4 w-4" /></div>
-                    <div className="text-3xl font-bold text-purple-600 mb-1">12</div>
-                    <div className="text-slate-500 text-sm font-medium">Day Streak</div>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Toggle dark mode"
+                    onClick={() => setDarkMode(d => !d)}
+                    className="rounded-full"
+                  >
+                    {darkMode ? <Sun className="h-5 w-5 text-yellow-400" /> : <Moon className="h-5 w-5 text-slate-700" />}
+                  </Button>
+                  {userName ? (
+                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+                      <User className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+                      <span className="text-slate-800 dark:text-white font-medium text-sm">{userName}</span>
+                      <Button variant="ghost" size="icon" className="ml-1" onClick={() => setEditingName(true)}><Edit2 className="h-4 w-4 text-slate-400" /></Button>
+                    </div>
+                  ) : editingName ? (
+                    <form onSubmit={handleNameSave} className="flex items-center gap-2">
+                      <Input
+                        value={nameInput}
+                        onChange={e => setNameInput(e.target.value)}
+                        placeholder="Enter your name"
+                        className="h-8 text-sm dark:bg-slate-800 dark:text-white"
+                        autoFocus
+                      />
+                      <Button type="submit" size="sm">Save</Button>
+                    </form>
+                  ) : (
+                    <Button variant="outline" size="sm" onClick={() => setEditingName(true)}>
+                      <User className="h-4 w-4 mr-1" /> Set your name
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Main Content */}
-            <div className="px-8 pb-8">
-              <div className="max-w-6xl mx-auto space-y-8">
-                {/* Navigation Cards with Playful Style */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Link to="/todos" className="group">
-                    <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:rotate-1 relative overflow-hidden">
-                      <div className="absolute top-4 right-4 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <List className="h-4 w-4 text-blue-600" />
+            <div className="px-8 py-8">
+              <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Todos Card */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col transition-colors duration-300">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                      <List className="h-5 w-5 text-blue-600" /> Todos
+                    </h2>
+                    <span className="text-xs text-slate-500 dark:text-slate-300">{completedTodos}/{totalTodos} done</span>
+                  </div>
+                  <div className="mb-4 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${todoProgress}%` }} />
+                  </div>
+                  <form onSubmit={handleAddTodo} className="flex gap-2 mb-4">
+                    <Input
+                      placeholder="Add a new todo..."
+                      value={newTodo}
+                      onChange={e => setNewTodo(e.target.value)}
+                      className="flex-1 h-10 dark:bg-slate-900 dark:text-white"
+                    />
+                    <Button type="submit" className="h-10">Add</Button>
+                  </form>
+                  <div className="flex-1 overflow-y-auto max-h-56 divide-y divide-slate-100 dark:divide-slate-700">
+                    {todos.length === 0 && <div className="text-slate-400 dark:text-slate-500 text-sm py-4 text-center">No todos yet.</div>}
+                    {todos.map(todo => (
+                      <div key={todo.id} className="flex items-center gap-3 py-2 group">
+                        <button
+                          onClick={() => handleToggleTodo(todo.id)}
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${todo.completed ? 'bg-blue-600 border-blue-600' : 'border-slate-300 dark:border-slate-600 hover:border-blue-400'}`}
+                          aria-label="Toggle complete"
+                        >
+                          {todo.completed && <CheckCircle className="h-4 w-4 text-white" />}
+                        </button>
+                        <span className={`flex-1 text-sm ${todo.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-white'}`}>{todo.text}</span>
+                        <button
+                          onClick={() => handleDeleteTodo(todo.id)}
+                          className="text-slate-300 dark:text-slate-600 hover:text-red-500"
+                          aria-label="Delete todo"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
-                      <div className="mb-4">
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Todo Magic ✨</h3>
-                        <p className="text-slate-600">{totalTodos} tasks waiting for you</p>
-                      </div>
-                      <div className="flex items-center text-blue-600 font-medium group-hover:text-blue-700">
-                        <span>Let's get stuff done!</span>
-                        <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </Link>
-
-                  <Link to="/habits" className="group">
-                    <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:-rotate-1 relative overflow-hidden">
-                      <div className="absolute top-4 right-4 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <Target className="h-4 w-4 text-green-600" />
-                      </div>
-                      <div className="mb-4">
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Habit Garden 🌱</h3>
-                        <p className="text-slate-600">{totalHabits} habits growing strong</p>
-                      </div>
-                      <div className="flex items-center text-green-600 font-medium group-hover:text-green-700">
-                        <span>Build your future!</span>
-                        <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </Link>
-
-                  <Link to="/calendar" className="group">
-                    <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:rotate-1 relative overflow-hidden">
-                      <div className="absolute top-4 right-4 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Calendar className="h-4 w-4 text-purple-600" />
-                      </div>
-                      <div className="mb-4">
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Time Planner 📅</h3>
-                        <p className="text-slate-600">Your schedule awaits</p>
-                      </div>
-                      <div className="flex items-center text-purple-600 font-medium group-hover:text-purple-700">
-                        <span>Plan your day!</span>
-                        <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </Link>
+                    ))}
+                  </div>
+                  <Link to="/todos" className="mt-4 text-blue-600 hover:underline text-sm self-end">View all</Link>
                 </div>
 
-                {/* Quick Actions with Notion Style */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Quick Add Todo */}
-                  <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 relative overflow-hidden">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
-                        <Plus className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-800">Quick Add ⚡</h3>
-                        <p className="text-slate-600">Capture that brilliant idea</p>
-                      </div>
-                    </div>
-                    
-                    <form onSubmit={handleAddTodo} className="space-y-4">
-                      <div className="flex gap-3">
-                        <Input
-                          placeholder="What's on your mind? 🤔"
-                          value={newTodo}
-                          onChange={(e) => setNewTodo(e.target.value)}
-                          className="flex-1 bg-white/80 border-slate-200 text-slate-800 placeholder:text-slate-400 rounded-2xl h-12 focus:border-blue-400 focus:ring-blue-400/20"
-                        />
-                        <Button type="submit" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-2xl px-8 h-12 shadow-lg">
-                          Add
-                        </Button>
-                      </div>
-                    </form>
-                    
-                    <div className="mt-8 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-700 font-semibold">Recent Wins 🎉</span>
-                        <Link to="/todos" className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
-                          See all <ArrowRight className="h-3 w-3" />
-                        </Link>
-                      </div>
-                      {todos.slice(0, 3).map((todo) => (
-                        <div key={todo.id} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-2xl border border-slate-100">
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                            todo.completed 
-                              ? 'bg-green-500 border-green-500 shadow-lg' 
-                              : 'border-slate-300 hover:border-green-400'
-                          }`}>
-                            {todo.completed && <CheckCircle className="h-4 w-4 text-white" />}
-                          </div>
-                          <span className={`text-sm flex-1 font-medium ${
-                            todo.completed ? 'line-through text-slate-500' : 'text-slate-700'
-                          }`}>
-                            {todo.text}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                {/* Habits Card */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col transition-colors duration-300">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                      <Target className="h-5 w-5 text-green-600" /> Habits
+                    </h2>
+                    <span className="text-xs text-slate-500 dark:text-slate-300">{completedHabits}/{totalHabits} today</span>
                   </div>
-
-                  {/* Today's Habits */}
-                  <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-sm border border-slate-200/50 relative overflow-hidden">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-                        <Target className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-800">Daily Rituals 🌟</h3>
-                        <p className="text-slate-600">Small steps, big impact</p>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {habits.map((habit) => (
-                        <div
-                          key={habit.id}
-                          className="flex items-center justify-between p-4 bg-slate-50/80 rounded-2xl border border-slate-100 hover:bg-slate-100/80 transition-all"
+                  <div className="mb-4 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full" style={{ width: `${habitProgress}%` }} />
+                  </div>
+                  <form onSubmit={handleAddHabit} className="flex gap-2 mb-4">
+                    <Input
+                      placeholder="Add a new habit..."
+                      value={newHabit}
+                      onChange={e => setNewHabit(e.target.value)}
+                      className="flex-1 h-10 dark:bg-slate-900 dark:text-white"
+                    />
+                    <Button type="submit" className="h-10">Add</Button>
+                  </form>
+                  <div className="flex-1 overflow-y-auto max-h-56 divide-y divide-slate-100 dark:divide-slate-700">
+                    {habits.length === 0 && <div className="text-slate-400 dark:text-slate-500 text-sm py-4 text-center">No habits yet.</div>}
+                    {habits.map(habit => (
+                      <div key={habit.id} className="flex items-center gap-3 py-2 group">
+                        <button
+                          onClick={() => handleToggleHabit(habit.id)}
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${habit.completed ? 'bg-green-600 border-green-600' : 'border-slate-300 dark:border-slate-600 hover:border-green-400'}`}
+                          aria-label="Toggle complete"
                         >
-                          <div className="flex items-center gap-4">
-                            <Button
-                              size="sm"
-                              variant={habit.completed ? "default" : "outline"}
-                              onClick={() => toggleHabit(habit.id)}
-                              className={`w-10 h-10 rounded-full p-0 transition-all ${
-                                habit.completed 
-                                  ? "bg-green-500 hover:bg-green-600 text-white shadow-lg" 
-                                  : "bg-white border-slate-200 text-slate-400 hover:border-green-400 hover:text-green-500"
-                              }`}
-                            >
-                              <CheckCircle className="h-5 w-5" />
-                            </Button>
-                            <div>
-                              <span className={`font-medium ${
-                                habit.completed ? 'text-green-600' : 'text-slate-700'
-                              }`}>
-                                {habit.name}
-                              </span>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="secondary" className="text-xs bg-slate-200 text-slate-600 border-0 rounded-full">
-                                  🔥 {habit.streak} days
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                          {habit.completed && <CheckCircle className="h-4 w-4 text-white" />}
+                        </button>
+                        <span className={`flex-1 text-sm ${habit.completed ? 'text-green-700 dark:text-green-400' : 'text-slate-800 dark:text-white'}`}>{habit.name}</span>
+                        <Badge variant="secondary">🔥 {habit.streak}d</Badge>
+                        <button
+                          onClick={() => handleDeleteHabit(habit.id)}
+                          className="text-slate-300 dark:text-slate-600 hover:text-red-500"
+                          aria-label="Delete habit"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <Link to="/habits" className="mt-4 text-green-600 hover:underline text-sm self-end">View all</Link>
+                </div>
+
+                {/* Widgets Card */}
+                <div className="flex flex-col gap-6">
+                  {/* Calendar Preview */}
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-2 transition-colors duration-300">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CalendarIcon className="h-5 w-5 text-purple-600" />
+                      <span className="font-semibold text-slate-800 dark:text-white text-base">Calendar</span>
                     </div>
-                    
-                    <Link to="/habits" className="block mt-6">
-                      <Button variant="outline" className="w-full rounded-2xl border-slate-200 text-slate-700 hover:bg-slate-50 font-medium h-12">
-                        View All Habits <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </Link>
+                    <Calendar mode="single" selected={new Date()} className="border-0" />
+                  </div>
+                  {/* Motivational Quote */}
+                  <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-2 transition-colors duration-300">
+                    <span className="font-semibold text-slate-800 dark:text-white text-base mb-1">Motivational Quote</span>
+                    <span className="text-slate-600 dark:text-slate-300 text-sm italic">"{quote}"</span>
+                    <Button variant="outline" size="sm" className="self-end mt-2" onClick={handleNewQuote}>New Quote</Button>
                   </div>
                 </div>
               </div>
